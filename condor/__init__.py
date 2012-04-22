@@ -2,6 +2,7 @@
 
 class CondorJob:
 	""" Defines a condor job """
+	jobfile = None
 
 	def __init__(self,name):
 		""" Constructor """
@@ -18,6 +19,10 @@ class CondorJob:
 		f = open(jobfile,"w")
 		f.write(self.script())
 		f.close()
+		self.jobfile = jobfile
+
+	def getJobfile(self):
+		return self.jobfile
 
 	def getName(self):
 		""" Returns the job name """
@@ -83,10 +88,19 @@ class CondorDAG:
 	def script(self):
 		""" Generates DAG Script """
 		s = ""
+		for node in self.nodelist:
+			s += "JOB %s %s\n" % (node.getName(),node.getJobfile())
+
+		for node in self.nodelist:
+			children = node.getChildren()
+			childnames = map(lambda x: x.getName(),children)
+			s += "PARENT %s CHILD %s\n" % (node.getName(),childnames.join(","))
+
 		return s
 
 	def write(self,dagfile):
 		""" Writes dagfile """
 		f = open(dagfile,"w")
+		f.write(self.script())
 		f.close()
 		
