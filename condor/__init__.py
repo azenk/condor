@@ -2,10 +2,10 @@
 
 class CondorJob:
 	""" Defines a condor job """
-	jobfile = None
 
 	def __init__(self,name):
 		""" Constructor """
+		self.jobfile = None
 		self.name = name
 
 
@@ -35,8 +35,11 @@ class CondorJob:
 class CondorJobNode(CondorJob):
 	""" Represents a condor job node for use in a CondorDAG """
 
-	children = []
-	parents = []
+	def __init__(self,name):
+		""" Constructor """
+		CondorJob.__init__(self,name)
+		self.children = []
+		self.parents = []
 
 	def pre(self,executable):
 		""" sets the pre-executable for this node """
@@ -56,13 +59,15 @@ class CondorJobNode(CondorJob):
 
 	def addParent(self,parent):
 		""" Add a parent Job Node """
-		parent.addChild(self)
-		self.parents.append(parent)
+		if parent not in self.parents:
+			self.parents.append(parent)
+			parent.addChild(self)
 
 	def addChild(self,child):
 		""" Add a child Job Node """
-		child.addParent(self)
-		self.children.append(child)
+		if child not in self.children:
+			self.children.append(child)
+			child.addParent(self)
 
 	def before(self,beforenode):
 		""" This node should complete before beforenode starts, alias for addChild """
@@ -75,11 +80,10 @@ class CondorJobNode(CondorJob):
 
 class CondorDAG:
 	""" Condor Job Graph, suitable for use with DAGman """
-	nodelist = []
 
 	def __init__(self):
 		""" Constructor """
-		pass
+		self.nodelist = []
 
 	def addNode(self,jobnode):
 		""" Adds jobnode to nodelist """
@@ -93,8 +97,9 @@ class CondorDAG:
 
 		for node in self.nodelist:
 			children = node.getChildren()
-			childnames = map(lambda x: x.getName(),children)
-			s += "PARENT %s CHILD %s\n" % (node.getName(),childnames.join(","))
+			if len(children) > 0:
+				childnames = map(lambda x: x.getName(),children)
+				s += "PARENT %s CHILD %s\n" % (node.getName(),",".join(childnames))
 
 		return s
 
