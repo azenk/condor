@@ -7,11 +7,34 @@ class CondorJob:
 		""" Constructor """
 		self.jobfile = None
 		self.name = name
+		self.executable = None
+		self.outputfile = "%s.out.$(Cluster)" % self.name
+		self.errorfile = "%s.err.$(Cluster)" % self.name
+		self.logfile = "%s.log.$(Cluster)" % self.name
+		self.universe = "vanilla"
+		self.arguments = []
 
+	def setExecutable(self,executable):
+		""" executable is the path to the program this job will run """
+		self.executable = executable
+
+	def setOutputfile(self,outputfile):
+		"""The file job output should be written to"""
+		self.outputfile = outputfile
+
+	def setErrorfile(self,errorfile):
+		""" The file that job errors should be written to"""
+		self.errorfile = errorfile
+
+	def setLogfile(self,logfile):
+		""" The file that job logs should be written to"""
+		self.errorfile = logfile
 
 	def script(self):
 		""" Returns the condor script as a string """
 		s = ""
+		s += "Executable = %s" % self.executable
+		s += ""
 		return s
 
 	def write(self,jobfile):
@@ -41,11 +64,11 @@ class CondorJobNode(CondorJob):
 		self.children = []
 		self.parents = []
 
-	def pre(self,executable):
+	def pre(self,executable,args):
 		""" sets the pre-executable for this node """
 		pass
 
-	def post(self,executable):
+	def post(self,executable,args):
 		""" sets the post-executable for this node """
 		pass
 
