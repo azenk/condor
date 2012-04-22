@@ -8,15 +8,21 @@ class CondorJob:
 		self.jobfile = None
 		self.name = name
 		self.executable = None
+		self.inputfile = None
 		self.outputfile = "%s.out.$(Cluster)" % self.name
 		self.errorfile = "%s.err.$(Cluster)" % self.name
 		self.logfile = "%s.log.$(Cluster)" % self.name
+		self.initialdir = None
 		self.universe = "vanilla"
 		self.arguments = []
 
 	def setExecutable(self,executable):
 		""" executable is the path to the program this job will run """
 		self.executable = executable
+
+	def setInitialdir(self,initialdir):
+		""" The path the program will start in"""
+		self.initialdir = initialdir
 
 	def setOutputfile(self,outputfile):
 		"""The file job output should be written to"""
@@ -28,13 +34,32 @@ class CondorJob:
 
 	def setLogfile(self,logfile):
 		""" The file that job logs should be written to"""
-		self.errorfile = logfile
+		self.logfile = logfile
+
+	def setArguments(self,arguments):
+		""" Sets the list of arguments that will be passed to the executable """
+		self.arguments = arguments
 
 	def script(self):
 		""" Returns the condor script as a string """
 		s = ""
-		s += "Executable = %s" % self.executable
-		s += ""
+		if self.executable != None:
+			s += "Executable = %s\n" % self.executable
+		if self.universe != None:
+			s += "Universe = %s\n" % self.universe
+		if self.inputfile != None:
+			s += "input = %s\n" % self.inputfile
+		if self.outputfile != None:
+			s += "output = %s\n" % self.outputfile
+		if self.errorfile != None:
+			s += "error = %s\n" % self.errorfile
+		if self.logfile != None:
+			s += "log = %s\n" % self.logfile
+		if self.initialdir != None:
+			s += "initialdir = %s\n" % self.initialdir
+		if len(self.arguments) > 0:
+			s += "arguments = %s\n" % " ".join(self.arguments)
+		s += "Queue"
 		return s
 
 	def write(self,jobfile):
