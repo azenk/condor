@@ -69,14 +69,6 @@ class CondorJobNode(CondorJob):
 			self.children.append(child)
 			child.addParent(self)
 
-	def before(self,beforenode):
-		""" This node should complete before beforenode starts, alias for addChild """
-		self.addChild(beforenode)
-
-	def after(self,afternode):
-		""" This node should start after afternode completes, alias for addParent """
-		self.addParent(afternode)
-		
 
 class CondorDAG:
 	""" Condor Job Graph, suitable for use with DAGman """
