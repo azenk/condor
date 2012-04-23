@@ -11,18 +11,33 @@ def main():
 	p = OptionParser()
 	(options,args) = p.parse_args()
 	
+	dag = CondorDAG()
 
-	a1 = CondorJobNode("a1")
+	a1 = CondorJobNode("a1",dag)
 	a1.setExecutable("/bin/sleep")
 	a1.setArguments(["30"])
 	a1.setInitialdir(args[0])
 	a1.write(os.path.join(args[0],"a1.condor"))
 	
+	a2 = CondorJobNode("a2",dag)
+	a2.setExecutable("/bin/date")
+	a2.setInitialdir(args[0])
+	a2.write(os.path.join(args[0],"a2.condor"))
 
-	a2 = CondorJobNode("a2")
-	b1 = CondorJobNode("b1")
-	b2 = CondorJobNode("b2")
-	c1 = CondorJobNode("c1")
+	b1 = CondorJobNode("b1",dag)
+	b1.setExecutable("/bin/date")
+	b1.setInitialdir(args[0])
+	b1.write(os.path.join(args[0],"b1.condor"))
+
+	b2 = CondorJobNode("b2",dag)
+	b2.setExecutable("/bin/date")
+	b2.setInitialdir(args[0])
+	b2.write(os.path.join(args[0],"b2.condor"))
+
+	c1 = CondorJobNode("c1",dag)
+	c1.setExecutable("/bin/date")
+	c1.setInitialdir(args[0])
+	c1.write(os.path.join(args[0],"c1.condor"))
 
 	a1.addChild(b1)
 	a1.addChild(b2)
@@ -32,16 +47,7 @@ def main():
 	c1.addParent(b1)
 	c1.addParent(b2)
 
-	dag = CondorDAG()
-
-	dag.addNode(a1)
-	dag.addNode(a2)
-	dag.addNode(b1)
-	dag.addNode(b2)
-	dag.addNode(c1)
-
-	print a1.script()
-	print dag.script()
+	dag.write(os.path.join(args[0],"/tmp/testjob/testdag.dag"))
 	pass
 
 if __name__ == "__main__":
