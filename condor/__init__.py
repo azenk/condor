@@ -83,11 +83,14 @@ class CondorJob:
 class CondorJobNode(CondorJob):
 	""" Represents a condor job node for use in a CondorDAG """
 
-	def __init__(self,name):
+	def __init__(self,name,dag=None):
 		""" Constructor """
 		CondorJob.__init__(self,name)
 		self.children = []
 		self.parents = []
+
+		if dag != None:
+			dag.addNode(self)
 
 	def pre(self,executable,args):
 		""" sets the pre-executable for this node """
@@ -139,7 +142,7 @@ class CondorDAG:
 			children = node.getChildren()
 			if len(children) > 0:
 				childnames = map(lambda x: x.getName(),children)
-				s += "PARENT %s CHILD %s\n" % (node.getName(),",".join(childnames))
+				s += "PARENT %s CHILD %s\n" % (node.getName()," ".join(childnames))
 
 		return s
 
